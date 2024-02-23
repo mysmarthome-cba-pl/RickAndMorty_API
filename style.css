@@ -1,0 +1,98 @@
+:root {
+  --white: #fff;
+  --gray-100: #ccc;
+  --gray-200: #ddd;
+  --red: #ffcccc;
+  --black: #000000;
+  --font: Chalkduster, fantasy;
+}
+
+body {
+  text-align: center;
+  background-color: var(--gray-200);
+  font-family: var(--font);
+}
+
+.header img {
+  height: 300px;
+}
+
+.character-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 200px);
+  gap: 20px;
+  margin-top: 20px;
+}
+
+h1,
+#footer,
+.character-tile {
+  border: 1px solid var(--black);
+  border-radius: 5px;
+  padding: 10px;
+  background-color: var(--gray-100);
+}
+
+.character-photo {
+  width: 100%;
+  border-radius: 5px 5px 0 0;
+}
+
+.no-results-message {
+  background-color: var(--red);
+  border-radius: 5px;
+  padding: 10px;
+  text-align: center;
+  margin-top: 10px;
+}
+
+#filterContainer {
+  display: inline-flex;
+  margin-top: 20px;
+}
+
+#filterSection {
+  margin-left: 30px;
+}
+
+.filter {
+  margin: 10px;
+}
+
+.filter input[type="text"] {
+  border: 1px solid var(--gray-100);
+  padding: 8px 10px;
+  background-color: var(--white);
+  border-radius: 5px;
+  margin: 0 5px;
+  font-family: var(--font);
+}
+
+.filter input[type="radio"] {
+  display: none;
+}
+
+.filter input[type="radio"] + label {
+  display: inline-block;
+  padding: 5px 10px;
+  background-color: var(--white);
+  border: 1px solid var(--gray-100);
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 0 5px;
+}
+
+.filter input[type="radio"]:checked + label {
+  background-color: var(--gray-100);
+}
+
+button {
+  display: inline-block;
+  padding: 5px 10px;
+  background-color: var(--white);
+  border: 1px solid var(--gray-100);
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 10px 5px;
+  font-family: var(--font);
+}
