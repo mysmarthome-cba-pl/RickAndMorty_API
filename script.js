@@ -1,31 +1,24 @@
 const characterContainer = document.querySelector(".character-container");
-const filterRadios = document.querySelectorAll('input[name="status"]');
-const searchInput = document.getElementById("search-input");
 const noResult = document.querySelector(".no-results-message");
-let currentPage = 0;
-const pageSize = 10;
+const filterRadios = document.querySelectorAll('input[name="status"]');
+const count = document.getElementById("countCharacter");
+const searchInput = document.getElementById("search-input");
+const prevButton = document.getElementById("btnPrev");
+const nextButton = document.getElementById("btnNext");
+let searchName;
+let statusSelected;
+let currentPage = 1;
 
 const updateCharacters = () => {
-  const filteredCharacters = dataResults.filter((character) => {
-    const isStatusMatch = character.status.toLowerCase();
-    const isNameMatch = character.name
-      .toLowerCase()
-      .includes(searchInput.value.toLowerCase());
-    return isStatusMatch && isNameMatch;
-  });
-
-  const startIndex = currentPage * pageSize;
-  const endIndex = startIndex + pageSize;
-  const charactersToShow = filteredCharacters.slice(startIndex, endIndex);
-
-  characterContainer.innerHTML = "";
-
-  if (charactersToShow.length === 0) {
+  if (!dataResults) {
     characterContainer.innerHTML = "";
     noResult.style.display = "block";
+    countCharacter.innerHTML = "";
+    return;
   } else {
     noResult.style.display = "none";
-    charactersToShow.forEach((character) => {
+    characterContainer.innerHTML = "";
+    dataResults.forEach((character) => {
       const characterTile = document.createElement("div");
       characterTile.classList.add("character-tile");
       characterTile.innerHTML = `
@@ -40,40 +33,37 @@ const updateCharacters = () => {
     });
   }
 
-  const totalCharacters = filteredCharacters.length;
-  const totalPages = Math.ceil(totalCharacters / pageSize);
-
-  if (currentPage === 0) {
+  const totalPages = dataInfo.pages;
+  if (currentPage === 1) {
     prevButton.disabled = true;
   } else {
     prevButton.disabled = false;
   }
 
-  if (currentPage >= totalPages - 1) {
+  if (currentPage >= totalPages) {
     nextButton.disabled = true;
   } else {
     nextButton.disabled = false;
   }
+
+  let count = currentPage * 20;
+  if (count > dataInfo.count) {
+    count = dataInfo.count;
+  }
+  countCharacter.innerHTML = `${count}/${dataInfo.count}`;
 };
 
-filterRadios.forEach((radio) => {
-  radio.addEventListener("change", () => {
-    const status = radio.value.toLowerCase();
-    fetchDataAndDisplayCharacters(`${status}`);
-  });
-});
-
-searchInput.addEventListener("input", () => {
-  currentPage = 0;
-  updateCharacters();
-});
-
-async function fetchDataAndDisplayCharacters(endpoint) {
+async function fetchDataAndDisplayCharacters(page, search, status) {
   try {
-    const response = await fetch(
-      "https://rickandmortyapi.com/api/character/?status=" + endpoint
-    );
+    let apiUrl = "https://rickandmortyapi.com/api/character/";
+    const params = new URLSearchParams();
+    if (page) params.set("page", page);
+    if (search) params.set("name", search);
+    if (status) params.set("status", status);
+    apiUrl += "?" + params.toString();
+    const response = await fetch(apiUrl);
     const data = await response.json();
+    dataInfo = data.info;
     dataResults = data.results;
     updateCharacters();
   } catch (error) {
@@ -81,16 +71,40 @@ async function fetchDataAndDisplayCharacters(endpoint) {
   }
 }
 
-const nextButton = document.getElementById("btnNext");
+filterRadios.forEach((radio) => {
+  radio.addEventListener("change", () => {
+    currentPage = 1;
+    searchName = searchInput.value.toLowerCase();
+    statusSelected = radio.value.toLowerCase();
+    fetchDataAndDisplayCharacters(1, searchName, statusSelected);
+  });
+});
+
+searchInput.addEventListener("input", () => {
+  currentPage = 1;
+  searchName = searchInput.value.toLowerCase();
+  statusSelected = document
+    .querySelector('input[name="status"]:checked')
+    .value.toLowerCase();
+  fetchDataAndDisplayCharacters(1, searchName, statusSelected);
+});
+
 nextButton.addEventListener("click", () => {
   currentPage++;
-  updateCharacters();
+  searchName = searchInput.value.toLowerCase();
+  statusSelected = document
+    .querySelector('input[name="status"]:checked')
+    .value.toLowerCase();
+  fetchDataAndDisplayCharacters(currentPage, searchName, statusSelected);
 });
 
-const prevButton = document.getElementById("btnPrev");
 prevButton.addEventListener("click", () => {
   currentPage--;
-  updateCharacters();
+  searchName = searchInput.value.toLowerCase();
+  statusSelected = document
+    .querySelector('input[name="status"]:checked')
+    .value.toLowerCase();
+  fetchDataAndDisplayCharacters(currentPage, searchName, statusSelected);
 });
 
-fetchDataAndDisplayCharacters("alive");
+fetchDataAndDisplayCharacters(1, "", "alive");
